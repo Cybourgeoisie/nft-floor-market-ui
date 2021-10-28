@@ -1,0 +1,14 @@
+.buy-orders-page {
+  text-align: left;
+  width: 80%;
+}
+
+@media (max-width: 800px) {
+  .buy-orders-page {
+    width: 95%;
+  }
+}
+
+.buy-orders-content {
+  text-align: center;
+}

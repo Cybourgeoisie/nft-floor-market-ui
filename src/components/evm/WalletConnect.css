@@ -1,0 +1,12 @@
+.wallet-connect {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.connect-button {
+  margin: 4px;
+  text-align: center;
+}
+
+

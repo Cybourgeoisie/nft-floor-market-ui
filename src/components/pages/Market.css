@@ -1,0 +1,26 @@
+.market-page {
+  text-align: left;
+  width: 80%;
+}
+
+@media (max-width: 800px) {
+  .market-page {
+    width: 95%;
+  }
+}
+
+.market-content {
+  text-align: center;
+}
+
+.market-contract-selection {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  text-align: center;
+}
+
+#market-contract-address {
+  width: 300px;
+  padding: 5px;
+}

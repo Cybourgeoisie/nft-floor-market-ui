@@ -1,0 +1,31 @@
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: white;
+  padding: 2vh;
+}
+
+.header-title {
+  font-size: calc(10px + 2vmin);
+}
+
+.header-links {
+  padding: 1vh;
+}
+
+ul.header-links {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.header-links li {
+  display: inline;
+  margin: 0;
+  padding: 0 10px;
+}
+
+.header-wallet {
+  
+}
