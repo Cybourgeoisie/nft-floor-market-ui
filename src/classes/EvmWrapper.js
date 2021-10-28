@@ -24,6 +24,10 @@ class EvmWrapper {
 		return !!this.provider;
 	}
 
+	isSignedIn() {
+		return !!this.signer;
+	}
+
 	async connectSigner() {
 		// Connect to the provider
 		if (!this.provider) {
@@ -68,19 +72,38 @@ class EvmWrapper {
 			case 1337:
 			case 31337:
 				return 'Hardhat';
+			default:
+				return 'Unknown'
 		}
-
-		return 'Unknown';
 	}
 
 	async getChainId() {
 		if (!this.provider) {
 			console.debug("Provider not configured.");
-			return 'Not Connected';
+			return false;
 		}
 
 		let network = await this.provider.getNetwork();
 		return network.chainId;
+	}
+
+	async getCurrencyAbbr() {
+		let chainId = await this.getChainId();
+
+		switch (chainId) {
+			case 1:
+			case 4:
+			case 5:
+			case 1337:
+			case 31337:
+				return 'ETH';
+			case 137:
+			case 80001:
+				return 'MATIC';
+				return 'ETH';
+			default:
+				return 'Unknown'
+		}
 	}
 
 
@@ -93,10 +116,111 @@ class EvmWrapper {
 			let name = await contract.name();
 			callback(name);
 		} catch (ex) {
-			console.error("Error in getContractName:", ex);
+			console.log("Error in getContractName:", ex);
 		}
 
 		return false;
+	}
+
+	async makeOffer(addr, value, callback) {
+		if (!this.signer) {
+			console.log("Not signed in");
+			return;
+		}
+
+		try {
+			let chainId = await this.getChainId();
+
+			let contract = new ethers.Contract(
+				contracts[this.MARKET_VERSION].address[String(chainId)],
+				contracts[this.MARKET_VERSION].abi,
+				this.signer
+			);
+
+			// Get the number of offers
+			callback(await contract.makeOffer(addr, {
+				value : ethers.utils.parseEther(value).toHexString()
+			}));
+		} catch (ex) {
+			console.log("Error in getMarketOrders:", ex);
+		}
+
+		//callback(offers);
+	}
+
+	async withdrawOffer(offerId, callback) {
+		if (!this.signer) {
+			console.log("Not signed in");
+			return;
+		}
+
+		try {
+			let chainId = await this.getChainId();
+
+			let contract = new ethers.Contract(
+				contracts[this.MARKET_VERSION].address[String(chainId)],
+				contracts[this.MARKET_VERSION].abi,
+				this.signer
+			);
+
+			// Get the number of offers
+			callback(await contract.withdrawOffer(offerId));
+		} catch (ex) {
+			console.log("Error in getMarketOrders:", ex);
+		}
+	}
+
+	async approveTransfer(addr, nftId, callback) {
+		if (!this.signer) {
+			console.log("Not signed in");
+			return;
+		}
+
+		try {
+			let chainId = await this.getChainId();
+
+			let marketContractAddress = contracts[this.MARKET_VERSION].address[String(chainId)];
+
+			let contract = new ethers.Contract(
+				addr,
+				contracts['erc721'].abi,
+				this.signer
+			);
+
+			// Check if approval is already granted
+			let approvalFor = await contract.getApproved(nftId);
+			if (approvalFor && approvalFor.toLowerCase() === marketContractAddress.toLowerCase()) {
+				callback(true);
+				return;
+			}
+
+			// Get the number of offers
+			callback(await contract.approve(marketContractAddress, nftId));
+		} catch (ex) {
+			console.log("Error in getMarketOrders:", ex);
+		}
+	}
+
+	async takeOffer(offerId, nftId, callback) {
+		if (!this.signer) {
+			console.log("Not signed in");
+			return;
+		}
+
+		try {
+			let chainId = await this.getChainId();
+
+			let contract = new ethers.Contract(
+				contracts[this.MARKET_VERSION].address[String(chainId)],
+				contracts[this.MARKET_VERSION].abi,
+				this.signer
+			);
+
+			// Get the number of offers
+			callback(await contract.takeOffer(offerId, nftId));
+		} catch (ex) {
+			console.log("Error in getMarketOrders:", ex);
+		}
 	}
 
 	async getMarketOrders(addr, callback) {
@@ -112,14 +236,15 @@ class EvmWrapper {
 			);
 
 			// Get the number of offers
-			let length = await contract.getOffersByContractCount(addr);
+			let length = (await contract.getOffersByContractCount(addr)).toNumber();
 
 			let limitSize = 5;
 			for (let offsetIdx = 0; offsetIdx < length; offsetIdx+=limitSize) {
 				let res = await contract.getOffersByContract(addr, limitSize, Math.ceil(offsetIdx / limitSize));
 
-				for (let idx = 0; idx < res.length && res[idx]._value.toString() != 0; idx++) {
+				for (let idx = 0; idx < res.length && parseInt(res[idx]._value.toString(), 10) !== 0; idx++) {
 					offers.push({
+						'offerId' : res[idx]._offerId.toString(),
 						'offerer' : res[idx]._offerer,
 						'value' : parseFloat(ethers.utils.formatEther(res[idx]._value))
 					});
@@ -129,7 +254,7 @@ class EvmWrapper {
 			// Now sort all orders
 			offers.sort(this.sortValue);
 		} catch (ex) {
-			console.error("Error in getMarketOrders:", ex);
+			console.log("Error in getMarketOrders:", ex);
 		}
 
 		callback(offers);
@@ -148,15 +273,15 @@ class EvmWrapper {
 			);
 
 			// Get the number of offers
-			let length = await contract.getOffersByOffererCount(addr);
+			let length = (await contract.getOffersByOffererCount(addr)).toNumber();
 
 			let limitSize = 5;
 			for (let offsetIdx = 0; offsetIdx < length; offsetIdx+=limitSize) {
 				let res = await contract.getOffersByOfferer(addr, limitSize, Math.ceil(offsetIdx / limitSize));
 
-				for (let idx = 0; idx < res.length && res[idx]._value.toString() != 0; idx++) {
+				for (let idx = 0; idx < res.length && parseInt(res[idx]._value.toString(), 10) !== 0; idx++) {
 					offers.push({
-						'offerId' : res[idx]._offerId,
+						'offerId' : res[idx]._offerId.toString(),
 						'contract' : res[idx]._contract,
 						'offerer' : res[idx]._offerer,
 						'value' : parseFloat(ethers.utils.formatEther(res[idx]._value))
@@ -167,7 +292,7 @@ class EvmWrapper {
 			// Now sort all orders
 			offers.sort(this.sortValue);
 		} catch (ex) {
-			console.error("Error in getMarketOrders:", ex);
+			console.log("Error in getBuyerOrders:", ex);
 		}
 
 		callback(offers);
@@ -175,9 +300,9 @@ class EvmWrapper {
 
 	sortValue(a, b) {
 		if (a.value > b.value) {
-			return 1;
-		} else if (a.value < b.value) {
 			return -1;
+		} else if (a.value < b.value) {
+			return 1;
 		} else {
 			return 0;
 		}

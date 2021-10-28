@@ -12,3 +12,20 @@
 .buy-orders-content {
   text-align: center;
 }
+
+.buy-orders-content {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  text-align: center;
+}
+
+.buy-orders-content table {
+  border: 1px white solid;
+  padding: 10px;
+}
+
+.buy-orders-content th, .buy-orders-content td {
+  padding: 5px;
+}

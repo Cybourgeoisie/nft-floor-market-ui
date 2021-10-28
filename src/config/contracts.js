@@ -577,6 +577,11 @@ function contracts() {
 						{
 							"components": [
 								{
+									"internalType": "uint256",
+									"name": "_offerId",
+									"type": "uint256"
+								},
+								{
 									"internalType": "address",
 									"name": "_contract",
 									"type": "address"
@@ -590,19 +595,9 @@ function contracts() {
 									"internalType": "uint256",
 									"name": "_value",
 									"type": "uint256"
-								},
-								{
-									"internalType": "uint128",
-									"name": "_contractListIndex",
-									"type": "uint128"
-								},
-								{
-									"internalType": "uint128",
-									"name": "_offererListIndex",
-									"type": "uint128"
 								}
 							],
-							"internalType": "struct NFTFloorMarket.Offer[]",
+							"internalType": "struct NFTFloorMarket.OfferDetails[]",
 							"name": "_offers",
 							"type": "tuple[]"
 						}
@@ -652,6 +647,11 @@ function contracts() {
 						{
 							"components": [
 								{
+									"internalType": "uint256",
+									"name": "_offerId",
+									"type": "uint256"
+								},
+								{
 									"internalType": "address",
 									"name": "_contract",
 									"type": "address"
@@ -665,19 +665,9 @@ function contracts() {
 									"internalType": "uint256",
 									"name": "_value",
 									"type": "uint256"
-								},
-								{
-									"internalType": "uint128",
-									"name": "_contractListIndex",
-									"type": "uint128"
-								},
-								{
-									"internalType": "uint128",
-									"name": "_offererListIndex",
-									"type": "uint128"
 								}
 							],
-							"internalType": "struct NFTFloorMarket.Offer[]",
+							"internalType": "struct NFTFloorMarket.OfferDetails[]",
 							"name": "_offers",
 							"type": "tuple[]"
 						}

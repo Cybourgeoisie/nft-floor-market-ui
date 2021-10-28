@@ -11,6 +11,19 @@
 
 .market-content {
   text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  text-align: center;
+}
+
+.market-content table {
+  border: 1px white solid;
+  padding: 10px;
+}
+
+.market-content th, .market-content td {
+  padding: 5px;
 }
 
 .market-contract-selection {
@@ -21,6 +34,12 @@
 }
 
 #market-contract-address {
-  width: 300px;
-  padding: 5px;
+  width: 350px;
+  padding: 10px;
 }
+
+#market-offer-value {
+  width: 80px;
+  padding: 10px;
+}
+

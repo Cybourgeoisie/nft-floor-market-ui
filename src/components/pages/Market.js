@@ -3,28 +3,60 @@ import EvmWrapper from '../../classes/EvmWrapper.js';
 
 import './Market.css';
 
-let DEFAULT_CONTRACT_ADDRESS = '0x0';
+//let DEFAULT_CONTRACT_ADDRESS = '0x0';
 
 function Market() {
-  const [currentContract, setCurrentContract] = useState(DEFAULT_CONTRACT_ADDRESS);
+  const [currentContract, setCurrentContract] = useState();
+  const [currencyAbbr, setCurrencyAbbr] = useState('ETH');
+  const [signedIn, setSignedIn] = useState(false);
   const [currentContractName, setCurrentContractName] = useState('Unknown');
-  const [marketOrders, setMarketOrders] = useState([]);
   const [marketOrderbook, setMarketOrderbook] = useState('Loading...');
+  const [marketOrders, setMarketOrders] = useState([]);
 
-  async function loadMarketOrders() {
+  const [loadedMarketOrders, setLoadedMarketOrders] = useState(false);
+
+  async function takeOffer(offerId) {
+    document.getElementById('market-offer-id').value = offerId;
+  }
+
+  async function takeOfferTx() {
+    let offerId = document.getElementById('market-offer-id').value;
+    let nftId = document.getElementById('market-nft-id').value;
+
+    EvmWrapper.approveTransfer(currentContract, nftId, async (tx) => {
+
+      if (tx.hasOwnProperty('wait')) {
+        console.log("Waiting for transaction to be confirmed...");
+        await tx.wait();
+      } else if (tx !== true) {
+        console.log("Unable to approve");
+        return;
+      }
+
+      EvmWrapper.takeOffer(offerId, nftId, async (tx) => {
+        console.log("Waiting for transaction to be confirmed...");
+
+        await tx.wait();
+
+        setLoadedMarketOrders(false);
+        loadMarketOrders();
+      });
+    });
+  }
+
+  async function loadMarketOrders(forceReload = false) {
+    if (loadedMarketOrders && !forceReload) {
+      return;
+    }
+
     if (!EvmWrapper.isConnected()) {
       setMarketOrderbook('Connect to a network to view your market orders.');
       return;
     }
 
-    /*
-    let signer = await EvmWrapper.getSignerAddress();
+    setCurrencyAbbr(await EvmWrapper.getCurrencyAbbr());
 
-    if (!signer) {
-      setMarketOrderbook('Connect your wallet to be able to view all open buy orders.');
-      return;
-    }
-    */
+    setSignedIn(await EvmWrapper.isSignedIn());
 
     if (!currentContract) {
       setMarketOrderbook('Set a valid ERC-721 contract to view orders.');
@@ -34,7 +66,10 @@ function Market() {
     setMarketOrderbook('Loading orders...');
 
     EvmWrapper.getMarketOrders(currentContract, (orders) => {
-      
+
+      setLoadedMarketOrders(true);
+      setMarketOrders(orders);
+
     });
   }
 
@@ -49,6 +84,24 @@ function Market() {
         setCurrentContractName('Unknown');
       }
     });
+
+    setLoadedMarketOrders(false);
+    loadMarketOrders();
+  }
+
+  async function makeOffer() {
+    let value = document.getElementById('market-offer-value').value;
+
+    EvmWrapper.makeOffer(currentContract, value, async (tx) => {
+
+      console.log("Waiting for transaction to be confirmed...");
+
+      await tx.wait();
+
+      setLoadedMarketOrders(false);
+      loadMarketOrders();
+
+    });
   }
 
   function shortAddress(address) {
@@ -60,12 +113,49 @@ function Market() {
   }
 
   useEffect(() => {
-    EvmWrapper.onConnect('market', loadMarketOrders.bind(this));
-    EvmWrapper.onConnectSigner('market', loadMarketOrders.bind(this));
+    EvmWrapper.onConnect('market', loadMarketOrders.bind(this, true));
+    EvmWrapper.onConnectSigner('market', loadMarketOrders.bind(this, true));
     return function cleanup() {
       EvmWrapper.removeEvents('market');
     };
   });
+
+  function renderOrderbook() {
+    let table;
+    if (marketOrders && marketOrders.length == 0) {
+      table = "There are no market orders for " + currentContract;
+    } else {
+      let orderRows = []
+      for (let order of marketOrders) {
+        orderRows.push((
+          <tr>
+            <td>{order.offerId}</td>
+            <td>{order.offerer}</td>
+            <td>{order.value} {currencyAbbr}</td>
+            <td>
+              <button onClick={takeOffer.bind(this, order.offerId)}>
+                Take Offer
+              </button>
+            </td>
+          </tr>
+        ));
+      }
+
+      table = (
+        <table>
+          <tr>
+            <th>Offer ID</th>
+            <th>Offerer</th>
+            <th>Value</th>
+            <th>Take Offer</th>
+          </tr>
+          {orderRows}
+        </table>
+      );
+    }
+
+    return table;
+  }
 
   return (
     <div className="market-page">
@@ -75,20 +165,61 @@ function Market() {
 
       <div className="market-contract-selection">
         <div>
-          <input type="text" id="market-contract-address" placeholder={DEFAULT_CONTRACT_ADDRESS} />
+          <input type="text" id="market-contract-address" placeholder={'0x0'} />
         </div>
         <div>
           <button onClick={changeContract}>Set</button>
         </div>
       </div>
 
-      <h1>
-        Orders for {shortAddress(currentContract)} - {currentContractName}
-      </h1>
+      {currentContract ? (
+        <>
+          <h1>
+            Orders for {shortAddress(currentContract)} - {currentContractName}
+          </h1>
 
-      <div className="market-content">
-        {marketOrderbook}
-      </div>
+          <div className="market-content">
+            {renderOrderbook()}
+          </div>
+
+
+          {signedIn ? (
+            <>
+              <h2>
+                Make Offer
+              </h2>
+
+              <div className="market-contract-selection">
+                <div>
+                  {currencyAbbr} Offer: <input type="text" id="market-offer-value" placeholder={0.01} />
+                </div>
+                <div>
+                  <button onClick={makeOffer}>Make Offer</button>
+                </div>
+              </div>
+
+              <h2>
+                Take Offer
+              </h2>
+
+              <div className="market-contract-selection">
+                <div>
+                  Offer ID: <input type="text" id="market-offer-id" />
+                </div>
+                <div>
+                  NFT ID: <input type="text" id="market-nft-id" />
+                </div>
+                <div>
+                  <button onClick={takeOfferTx}>Take Offer</button>
+                </div>
+              </div>
+                </>
+          ) : (<></>)}
+
+        </>
+
+      ) : (<></>)}
+
     </div>
   );
 }
