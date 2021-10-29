@@ -110,6 +110,48 @@ class EvmWrapper {
 	/**
 	 * Contract Interactions
 	 **/
+
+	async validateNftContract(addr, callback) {
+		if (!addr || addr.length !== 42) {
+			callback(false, 'Invalid Address Format');
+			return;
+		}
+
+		try {
+			let contract = new ethers.Contract(addr, contracts['erc721'].abi, this.provider);
+			let supportsERC721 = await contract.supportsInterface('0x80ac58cd');
+			callback(supportsERC721, supportsERC721 ? null : 'Not an ERC-721 contract');
+			return;
+		} catch (ex) {
+			console.log("Error in getContractName:", ex);
+		}
+
+		callback(false, 'Not an ERC-721 contract');
+	}
+
+	async checkOwnerOfNft(addr, nftId, callback) {
+		try {
+			if (!this.signer) {
+				console.log("Not signed in");
+				callback(false, 'Not signed in.');
+				return;
+			}
+
+			let signerAddress = await this.getSignerAddress();
+
+			let contract = new ethers.Contract(addr, contracts['erc721'].abi, this.provider);
+			let address = await contract.ownerOf(nftId);
+			let success = address && signerAddress && address.toLowerCase() === signerAddress.toLowerCase() && signerAddress.length === 42;
+			callback(success, success ? null : `Not owner of NFT. Owner is ${address}, logged in as ${signerAddress}.`);
+			return;
+		} catch (ex) {
+			console.log("Error in getContractName:", ex);
+		}
+
+		// Edge-case: something goes wrong
+		callback(true, null);
+	}
+
 	async getContractName(addr, callback) {
 		try {
 			let contract = new ethers.Contract(addr, contracts['erc721'].abi, this.provider);
@@ -120,6 +162,45 @@ class EvmWrapper {
 		}
 
 		return false;
+	}
+
+	async getOwnedNfts(addr, callback) {
+		try {
+			if (!this.signer) {
+				callback(false, 'Not signed in.');
+				return;
+			}
+
+			let signerAddress = await this.getSignerAddress();
+
+			let contract = new ethers.Contract(addr, contracts['erc721'].abi, this.provider);
+			let balance = await contract.balanceOf(signerAddress);
+
+			if (balance) {
+				balance = balance.toNumber();
+			} else {
+				balance = 0;
+			}
+
+			let nfts = [];
+			try {
+				for (let idx = 0; idx < balance; idx++) {
+					let tokenId = await contract.tokenOfOwnerByIndex(signerAddress, idx);
+					if (tokenId) {
+						nfts.push(tokenId.toString());
+					}
+				}
+			} catch (ex) {
+				console.log("Unable to get tokens by index");
+			}
+
+			callback({balance, nfts});
+			return;
+		} catch (ex) {
+			console.log("Error in getContractName:", ex);
+		}
+
+		callback({balance: 0, nfts: []});
 	}
 
 	async makeOffer(addr, value, callback) {

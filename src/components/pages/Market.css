@@ -38,8 +38,19 @@
   padding: 10px;
 }
 
+#market-contract-address-dropdown {
+  width: 350px;
+  padding: 10px;
+}
+
 #market-offer-value {
   width: 80px;
   padding: 10px;
+}
+
+.market-contract-selection-error {
+  padding: 10px;
+  text-align: center;
+  color: red;
 }
 

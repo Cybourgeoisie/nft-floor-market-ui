@@ -8,7 +8,6 @@ function BuyOrders() {
   const [currencyAbbr, setCurrencyAbbr] = useState('ETH');
   const [openBuyOrders, setOpenBuyOrders] = useState([]);
   const [signerAddress, setSignerAddress] = useState(false);
-  const [loadedBuyOrders, setLoadedBuyOrders] = useState(false);
 
   let orderList = [];
 
@@ -19,17 +18,12 @@ function BuyOrders() {
 
       await tx.wait();
 
-      setLoadedBuyOrders(false);
       loadBuyOrders();
 
     });
   }
 
   async function loadBuyOrders() {
-    if (loadedBuyOrders) {
-      return;
-    }
-
     if (!EvmWrapper.isConnected()) {
       setOpenBuyOrderbook('Connect to a network to view your buy orders.');
       return;
@@ -49,7 +43,6 @@ function BuyOrders() {
 
     EvmWrapper.getBuyerOrders(signer, (orders) => {
 
-      setLoadedBuyOrders(true);
       setOpenBuyOrders(orders);
 
     });
@@ -98,7 +91,7 @@ function BuyOrders() {
     return function cleanup() {
       EvmWrapper.removeEvents('buyorders');
     };
-  });
+  }, []);
 
   return (
     <div className="buy-orders-page">
