@@ -25,6 +25,9 @@ function Header() {
           <li>
             <Link to="/about">About</Link>
           </li>
+          <li>
+            <Link to="/terms-of-service">Terms of Service</Link>
+          </li>
         </ul>
       </div>
       <div>

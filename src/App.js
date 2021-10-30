@@ -10,6 +10,7 @@ import Market from './components/pages/Market.js';
 import BuyOffers from './components/pages/BuyOffers.js';
 import Activity from './components/pages/Activity.js';
 import About from './components/pages/About.js';
+import TermsOfService from './components/pages/TermsOfService.js';
 
 function App() {
   return (
@@ -26,6 +27,9 @@ function App() {
             </Route>
             <Route exact path="/activity">
               <Activity />
+            </Route>
+            <Route exact path="/terms-of-service">
+              <TermsOfService />
             </Route>
             <Route exact path="/">
               <Market />

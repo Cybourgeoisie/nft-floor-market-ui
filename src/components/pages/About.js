@@ -1,8 +1,18 @@
 import './About.css';
+import contracts from '../../config/contracts.js';
+import { Link } from "react-router-dom";
 
 function About() {
   return (
     <div className="about-page">
+      <h1 id="about">Notice: Highly Experimental</h1>
+
+      <p>
+        NFT Floor Market is extremely new and unaudited. The contract code is publicly visible, and all deployments are listed
+        in the FAQ. Exercise caution when using new contracts and software. Never connect your wallet to any website you are not
+        confident is secure. NFT Floor Market will never, ever ask for your personal details or private key.
+      </p>
+
       <h1 id="about">About</h1>
       <p>
         NFT Floor Market is a fully on-chain market for setting "buy offers" of any NFT within a given contract. NFM only 
@@ -44,7 +54,45 @@ function About() {
         The owner of the smart contract has no authority to withdraw ETH from the contract other than the fees accumulated from sales.
       </p>
 
+      <h1 id="faq">Caution: Shared / Multiple Collection Contracts</h1>
+
+      <p>
+        Certain NFT contracts will have different types of NFTs, which have different floors within the same contract. Unless you
+        are explicitly looking for the cheapest floor asset within a given contract, exercise significant caution when making offers
+        on NFTs in these collections.
+      </p>
+
+      <p>
+        Examples include:
+      </p>
+
+      <ul>
+        <li>Plasma Bears - Parts and Bears have different floors. A bid would likely be fulfilled with a part.</li>
+        <li>Neon District In-Game Item - Shells have different rarities. A bid would likely be fulfilled with a Common Shell.</li>
+        <li>Neon District Founders Keys - Founders Keys have different rarities. A bid will likely be fulfilled with a User Key.</li>
+      </ul>
+
+      <p>
+        Marketplaces also allow anyone to mint a token within a shared, collective contract. Anyone can fulfill a floor order for
+        with any token within these contracts, including one made specifically to accept a floor offer. These include, but are not
+        limited to:
+      </p>
+
+      <ul>
+        <li>SuperRare</li>
+        <li>Rarible</li>
+        <li>OpenSea Shared Contract</li>
+        <li>Foundation</li>
+      </ul>
+
+
       <h1 id="faq">FAQ</h1>
+
+      <h2>What are your Terms of Service?</h2>
+
+      <p>
+        See the <Link to="/terms-of-service">Terms of Service</Link> for all details.
+      </p>
 
       <h2>What is the contract address?</h2>
 
@@ -53,11 +101,10 @@ function About() {
       </p>
 
       <ul>
-        <li>Ethereum: TBD</li>
-        <li>Rinkeby: TBD</li>
-        <li>Goerli: TBD</li>
-        <li>Matic Mainnet: TBD</li>
-        <li>Matic Testnet: TBD</li>
+        <li>Ethereum: <a href={"https://etherscan.io/address/" + contracts["v.0.0"]["address"]["1"]} target="_blank">{contracts["v.0.0"]["address"]["1"]}</a></li>
+        <li>Ethereum Rinkeby Testnet: <a href={"https://rinkeby.etherscan.io/address/" + contracts["v.0.0"]["address"]["4"]} target="_blank">{contracts["v.0.0"]["address"]["4"]}</a></li>
+        <li>Matic Mainnet: <a href={"https://polygonscan.com/address/" + contracts["v.0.0"]["address"]["137"]} target="_blank">{contracts["v.0.0"]["address"]["137"]}</a></li>
+        <li>Matic Mumbai Testnet: <a href={"https://mumbai.polygonscan.com/address/" + contracts["v.0.0"]["address"]["80001"]} target="_blank">{contracts["v.0.0"]["address"]["80001"]}</a></li>
       </ul>
 
       <h2>Do you take fees?</h2>
@@ -85,13 +132,13 @@ function About() {
         I'm not trying to make a business out of gatekeeping contracts. You can share your market link
         with everyone in your community by providing them with the URL for the market page for your contract - the contract address
         is stored in the URL. If you still really feel that you want to be included in the "Verified Contracts", contact me via
-        Twitter: @cybourgeoisie
+        Twitter: <a href="https://twitter.com/cybourgeoisie" target="_blank">@cybourgeoisie</a>
       </p>
 
       <h2>Who built this?</h2>
 
       <p>
-        It doesn't matter, it belongs to the Ether now. Its corporeal presence is maintained by @cybourgeoisie.
+        It doesn't matter, it belongs to the Ether now. Its corporeal presence is maintained by <a href="https://twitter.com/cybourgeoisie" target="_blank">@cybourgeoisie</a>.
       </p>
 
       <h2>Why does this look like ass?</h2>
@@ -99,7 +146,6 @@ function About() {
       <p>
         It's called a minimum viable product.
       </p>
-
 
     </div>
   );
