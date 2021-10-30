@@ -7,7 +7,8 @@ import {
 import './App.css';
 import Header from './components/header/Header.js';
 import Market from './components/pages/Market.js';
-import BuyOrders from './components/pages/BuyOrders.js';
+import BuyOffers from './components/pages/BuyOffers.js';
+import Activity from './components/pages/Activity.js';
 import About from './components/pages/About.js';
 
 function App() {
@@ -17,13 +18,19 @@ function App() {
         <Header />
         <div className="content">
           <Switch>
-            <Route path="/about">
+            <Route exact path="/about">
               <About />
             </Route>
-            <Route path="/buy-orders">
-              <BuyOrders />
+            <Route exact path="/buy-offers">
+              <BuyOffers />
             </Route>
-            <Route path="/">
+            <Route exact path="/activity">
+              <Activity />
+            </Route>
+            <Route exact path="/">
+              <Market />
+            </Route>
+            <Route path="/:contractAddress">
               <Market />
             </Route>
           </Switch>

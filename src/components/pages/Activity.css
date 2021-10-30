@@ -1,0 +1,28 @@
+.activity-page {
+  text-align: left;
+  width: 80%;
+}
+
+@media (max-width: 800px) {
+  .activity-page {
+    width: 95%;
+  }
+}
+
+.activity-content {
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  text-align: center;
+}
+
+.activity-content table {
+  border: 1px white solid;
+  padding: 10px;
+}
+
+.activity-content th, .activity-content td {
+  padding: 10px;
+}
+

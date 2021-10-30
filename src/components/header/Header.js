@@ -17,7 +17,10 @@ function Header() {
             <Link to="/">Market</Link>
           </li>
           <li>
-            <Link to="/buy-orders">Buy Orders</Link>
+            <Link to="/buy-offers">Buy Offers</Link>
+          </li>
+          <li>
+            <Link to="/activity">Activity</Link>
           </li>
           <li>
             <Link to="/about">About</Link>

@@ -5,7 +5,7 @@ function About() {
     <div className="about-page">
       <h1 id="about">About</h1>
       <p>
-        NFT Floor Market is a fully on-chain market for setting "buy orders" of any NFT within a given contract. NFM only 
+        NFT Floor Market is a fully on-chain market for setting "buy offers" of any NFT within a given contract. NFM only 
         works for ERC-721 tokens, and works best for collections where all of the tokens are of the same type - for example, 
         pfp projects like <a href="https://boredapeyachtclub.com/" target="_blank" rel="noreferrer">Bored Ape Yacht Club</a>.
       </p>
@@ -24,19 +24,20 @@ function About() {
 
       <p>
         The NFM smart contracts are designed to work forever, regardless of whether a user interface exists or not. There are
-        no external dependencies. It is eternal. You can build your own UI or integrate the marketplace within other smart contracts.
+        no external dependencies, only a connection with a blockchain. You can build your own UI or integrate the marketplace
+        within other smart contracts.
       </p>
 
       <h1 id="about">How It Works</h1>
 
       <p>
-        Buyers put up a ETH at a given price for any NFT within a contract. Sellers can view all open "buy orders" and choose 
+        Buyers put up ETH at a given price for any NFT within a contract. Sellers can view all open "buy offers" and choose 
         to accept any of them in exchange for one of their NFTs.
       </p>
 
       <p>
-        If a buyer wishes to remove their order and reclaim their ETH, they can do so at any time. No fees are applied to cancelling
-        an order.
+        If a buyer wishes to remove their buy offer and reclaim their ETH, they can do so at any time. No fees are applied to cancelling
+        an offer. Offers can be removed from the Buy Offers page.
       </p>
 
       <p>
@@ -70,6 +71,27 @@ function About() {
       <p>
         Yes. The NFM smart contracts implement the&nbsp;
         <a href="https://royaltyregistry.xyz/lookup" target="_blank" rel="noreferrer">Royalty Registry</a> by Manifold.xyz.
+      </p>
+
+      <h2>What are "Verified Contracts"?</h2>
+
+      <p>
+        These contracts are pre-loaded, popular ERC-721 contracts for ease of access and use.
+      </p>
+
+      <h2>How can I add my contract to the "Verified Contracts" list?</h2>
+
+      <p>
+        I'm not trying to make a business out of gatekeeping contracts. You can share your market link
+        with everyone in your community by providing them with the URL for the market page for your contract - the contract address
+        is stored in the URL. If you still really feel that you want to be included in the "Verified Contracts", contact me via
+        Twitter: @cybourgeoisie
+      </p>
+
+      <h2>Who built this?</h2>
+
+      <p>
+        It doesn't matter, it belongs to the Ether now. Its corporeal presence is maintained by @cybourgeoisie.
       </p>
 
       <h2>Why does this look like ass?</h2>

@@ -100,7 +100,6 @@ class EvmWrapper {
 			case 137:
 			case 80001:
 				return 'MATIC';
-				return 'ETH';
 			default:
 				return 'Unknown'
 		}
@@ -223,7 +222,7 @@ class EvmWrapper {
 				value : ethers.utils.parseEther(value).toHexString()
 			}));
 		} catch (ex) {
-			console.log("Error in getMarketOrders:", ex);
+			console.log("Error in makeOffer:", ex);
 		}
 
 		//callback(offers);
@@ -247,7 +246,7 @@ class EvmWrapper {
 			// Get the number of offers
 			callback(await contract.withdrawOffer(offerId));
 		} catch (ex) {
-			console.log("Error in getMarketOrders:", ex);
+			console.log("Error in withdrawOffer:", ex);
 		}
 	}
 
@@ -278,7 +277,7 @@ class EvmWrapper {
 			// Get the number of offers
 			callback(await contract.approve(marketContractAddress, nftId));
 		} catch (ex) {
-			console.log("Error in getMarketOrders:", ex);
+			console.log("Error in approveTransfer:", ex);
 		}
 	}
 
@@ -300,11 +299,11 @@ class EvmWrapper {
 			// Get the number of offers
 			callback(await contract.takeOffer(offerId, nftId));
 		} catch (ex) {
-			console.log("Error in getMarketOrders:", ex);
+			console.log("Error in takeOffer:", ex);
 		}
 	}
 
-	async getMarketOrders(addr, callback) {
+	async getMarketOffers(addr, callback) {
 		let offers = [];
 
 		try {
@@ -332,16 +331,16 @@ class EvmWrapper {
 				}
 			}
 
-			// Now sort all orders
+			// Now sort all offers
 			offers.sort(this.sortValue);
 		} catch (ex) {
-			console.log("Error in getMarketOrders:", ex);
+			console.log("Error in getMarketOffers:", ex);
 		}
 
 		callback(offers);
 	}
 
-	async getBuyerOrders(addr, callback) {
+	async getBuyerOffers(addr, callback) {
 		let offers = [];
 
 		try {
@@ -370,19 +369,87 @@ class EvmWrapper {
 				}
 			}
 
-			// Now sort all orders
+			// Now sort all offers
 			offers.sort(this.sortValue);
 		} catch (ex) {
-			console.log("Error in getBuyerOrders:", ex);
+			console.log("Error in getBuyerOffers:", ex);
 		}
 
 		callback(offers);
+	}
+
+	async getActivity(callback) {
+		let activity = [];
+
+		try {
+			let chainId = await this.getChainId();
+
+			let contract = new ethers.Contract(
+				contracts[this.MARKET_VERSION].address[String(chainId)],
+				contracts[this.MARKET_VERSION].abi,
+				this.provider
+			);
+
+			let abiInterface = new ethers.utils.Interface(contracts[this.MARKET_VERSION].abi);
+
+			// Get all recent events
+			let logs = await contract.queryFilter(
+				{
+					address: contracts[this.MARKET_VERSION].address[String(chainId)],
+					topics: []
+				},
+				// Get the last 50k blocks, about 1 week on ETH, much less on Polygon
+				parseInt(await this.provider.getBlockNumber(), 10) - 50000,
+				"latest"
+			);
+
+			// Remove all logs that aren't events we care about
+			logs = logs.filter(log => log.event === "OfferAccepted" || log.event === "OfferPlaced" || log.event === "OfferWithdrawn");
+
+			// Now sort all logs
+			logs.sort(this.sortBlockNumber);
+
+			// Only get the last N activity items
+			logs = logs.slice(0, 10);
+
+			// Organize
+			for (let log of logs) {
+				let event = abiInterface.parseLog(log);
+
+				activity.push({
+					"blockNumber" : parseInt(log.blockNumber, 10),
+					"time"        : (new Date((await log.getBlock()).timestamp * 1000)).toLocaleString(),
+					//"getTime"     : async () => { try { return new Date((await log.getBlock()).timestamp * 1000); } catch (ex) { return; } },
+					"event"       : event.name,
+					"offerId"     : event.args._offerId.toString(),
+					"contract"    : event.args._contract,
+					"offerer"     : event.args._offerer,
+					"value"       : ethers.utils.formatEther(event.args._value).toString(),
+					"seller"      : event.args._seller,
+					"tokenId"     : event.args._tokenId ? event.args._tokenId.toString() : ""
+				});
+			}
+		} catch (ex) {
+			console.log("Error in getActivity:", ex);
+		}
+
+		callback(activity);
 	}
 
 	sortValue(a, b) {
 		if (a.value > b.value) {
 			return -1;
 		} else if (a.value < b.value) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	sortBlockNumber(a, b) {
+		if (a.blockNumber > b.blockNumber) {
+			return -1;
+		} else if (a.blockNumber < b.blockNumber) {
 			return 1;
 		} else {
 			return 0;

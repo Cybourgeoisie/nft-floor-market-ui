@@ -1,19 +1,19 @@
-.buy-orders-page {
+.buy-offers-page {
   text-align: left;
   width: 80%;
 }
 
 @media (max-width: 800px) {
-  .buy-orders-page {
+  .buy-offers-page {
     width: 95%;
   }
 }
 
-.buy-orders-content {
+.buy-offers-content {
   text-align: center;
 }
 
-.buy-orders-content {
+.buy-offers-content {
   text-align: center;
   display: flex;
   flex-direction: row;
@@ -21,11 +21,11 @@
   text-align: center;
 }
 
-.buy-orders-content table {
+.buy-offers-content table {
   border: 1px white solid;
   padding: 10px;
 }
 
-.buy-orders-content th, .buy-orders-content td {
-  padding: 5px;
+.buy-offers-content th, .buy-offers-content td {
+  padding: 10px;
 }

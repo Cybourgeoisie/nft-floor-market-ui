@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
 import EvmWrapper from '../../classes/EvmWrapper.js';
 import verifiedContractsCfg from '../../config/verified.js';
 
@@ -11,14 +12,16 @@ function Market() {
   const [currencyAbbr, setCurrencyAbbr] = useState('ETH');
   const [signedIn, setSignedIn] = useState(false);
   const [currentContractName, setCurrentContractName] = useState('Unknown');
-  const [marketOrders, setMarketOrders] = useState([]);
+  const [marketOffers, setMarketOffers] = useState([]);
   const [verifiedContracts, setVerifiedContracts] = useState([]);
+  const [showTakeOffer, setShowTakeOffer] = useState(false);
 
   const [ownedNftBalance, setOwnedNftBalance] = useState(0);
   const [ownedNfts, setOwnedNfts] = useState([]);
 
   async function takeOffer(offerId) {
     try {
+      await setShowTakeOffer(true);
       document.getElementById('market-offer-id').value = offerId;
       setTakeOfferErrorMessage('');
     } catch (ex) {
@@ -63,14 +66,14 @@ function Market() {
 
           await tx.wait();
 
-          loadMarketOrders();
+          loadMarketOffers();
         });
       });
     });
   }
 
-  async function loadMarketOrders() {
-    console.log("loadMarketOrders", currentContract);
+  async function loadMarketOffers() {
+    console.log("loadMarketOffers", currentContract);
 
     if (!EvmWrapper.isConnected()) {
       return;
@@ -97,9 +100,9 @@ function Market() {
 
     setContractErrorMessage('');
 
-    EvmWrapper.getMarketOrders(currentContract, (orders) => {
+    EvmWrapper.getMarketOffers(currentContract, (offers) => {
 
-      setMarketOrders(orders);
+      setMarketOffers(offers);
       loadOwnedNfts();
 
     });
@@ -113,8 +116,6 @@ function Market() {
     }
 
     EvmWrapper.getOwnedNfts(currentContract, ({balance, nfts}) => {
-
-      console.log(balance, nfts);
 
       setOwnedNftBalance(balance);
       setOwnedNfts(nfts);
@@ -135,7 +136,9 @@ function Market() {
 
       setContractErrorMessage('');
 
-      setCurrentContract(contractAddress);
+      await setCurrentContract(contractAddress);
+
+      window.history.replaceState(null, "NFT Floor Market", `/${contractAddress}`)
 
       EvmWrapper.getContractName(contractAddress, (name) => {
         if (name) {
@@ -145,8 +148,8 @@ function Market() {
         }
       });
 
-      setMarketOrders([]);
-      loadMarketOrders();
+      setMarketOffers([]);
+      loadMarketOffers();
       loadOwnedNfts();
 
     });
@@ -161,7 +164,7 @@ function Market() {
 
       await tx.wait();
 
-      loadMarketOrders();
+      loadMarketOffers();
 
     });
   }
@@ -174,28 +177,35 @@ function Market() {
     return address;
   }
 
+  let { contractAddress } = useParams();
+
   useEffect(() => {
-    EvmWrapper.onConnect('market', loadMarketOrders);
-    EvmWrapper.onConnectSigner('market', loadMarketOrders);
+    if (!currentContract && contractAddress) {
+      setCurrentContract(contractAddress);
+    } else {
+      EvmWrapper.onConnect('market', loadMarketOffers);
+      EvmWrapper.onConnectSigner('market', loadMarketOffers);
+    }
+
     return function cleanup() {
       EvmWrapper.removeEvents('market');
     };
-  }, [currentContract, JSON.stringify(marketOrders)]);
+  }, [currentContract, JSON.stringify(marketOffers)]);
 
-  function renderOrderbook() {
+  function renderOfferbook() {
     let table;
-    if (marketOrders && marketOrders.length == 0) {
-      table = "There are no market orders for " + currentContract;
+    if (marketOffers && marketOffers.length === 0) {
+      table = "There are no market offers for " + currentContract;
     } else {
-      let orderRows = []
-      for (let order of marketOrders) {
-        orderRows.push((
+      let offerRows = []
+      for (let offer of marketOffers) {
+        offerRows.push((
           <tr>
-            <td>{order.offerId}</td>
-            <td>{order.offerer}</td>
-            <td>{order.value} {currencyAbbr}</td>
+            <td>{offer.offerId}</td>
+            <td>{offer.offerer}</td>
+            <td>{offer.value} {currencyAbbr}</td>
             <td>
-              <button onClick={takeOffer.bind(this, order.offerId)}>
+              <button onClick={takeOffer.bind(this, offer.offerId)}>
                 Take Offer
               </button>
             </td>
@@ -211,7 +221,7 @@ function Market() {
             <th>Value</th>
             <th>Take Offer</th>
           </tr>
-          {orderRows}
+          {offerRows}
         </table>
       );
     }
@@ -247,58 +257,71 @@ function Market() {
       {currentContract ? (
         <>
           <h1>
-            Orders for {currentContractName} <small>({shortAddress(currentContract)})</small>
+            Offers for {currentContractName} <small>({shortAddress(currentContract)})</small>
           </h1>
 
           <div className="market-content">
-            {renderOrderbook()}
+            {renderOfferbook()}
           </div>
-
 
           {signedIn ? (
             <>
-              <h2>
-                Make Offer
-              </h2>
-
-              <div className="market-contract-selection">
-                <div>
-                  {currencyAbbr} Offer: <input type="text" id="market-offer-value" placeholder={0.01} />
-                </div>
-                <div>
-                  <button onClick={makeOffer}>Make Offer</button>
-                </div>
+              <hr className="market-separator" />
+              <div className="market-make-take-buttons">
+                <button onClick={setShowTakeOffer.bind(this, false)}>Make Offer</button>
+                <button onClick={setShowTakeOffer.bind(this, true)}>Take Offer</button>
               </div>
+            </>
+          ) : ""}
 
-              <h2>
-                Take Offer
-              </h2>
+          {signedIn ? (
+            !showTakeOffer ? (
+              <>
+                <h2>
+                  Make Offer
+                </h2>
 
-              <div className="market-contract-selection">
-                <div>
-                  Offer ID: <input type="text" id="market-offer-id" />
+                <div className="market-contract-selection">
+                  <div>
+                    {currencyAbbr} Offer: <input type="text" id="market-offer-value" placeholder={0.01} />
+                  </div>
+                  <div>
+                    <button onClick={makeOffer}>Make Offer</button>
+                  </div>
                 </div>
-                <div>
-                  NFT ID: <input type="text" id="market-nft-id" />
+              </>
+            ) : (
+              <>
+                <h2>
+                  Take Offer
+                </h2>
+
+                <div className="market-contract-selection">
+                  <div>
+                    Offer ID: <input type="text" id="market-offer-id" />
+                  </div>
+                  <div>
+                    NFT ID: <input type="text" id="market-nft-id" />
+                  </div>
+                  <div>
+                    <button onClick={takeOfferTx}>Take Offer</button>
+                  </div>
                 </div>
-                <div>
-                  <button onClick={takeOfferTx}>Take Offer</button>
+
+                <div className="market-contract-selection-error">
+                  {takeOfferErrorMessage}
                 </div>
-              </div>
 
-              <div className="market-contract-selection-error">
-                {takeOfferErrorMessage}
-              </div>
+                <h3>
+                  You own {ownedNftBalance} NFTs in this collection
+                </h3>
 
-              <h3>
-                You own {ownedNftBalance} NFTs in this collection
-              </h3>
+                <div className="market-contract-selection">
+                  {ownedNfts && ownedNfts.length ? ownedNfts.map((x) => (<div>#ID: {x}</div>)) : (ownedNftBalance > 0 ? 'NFT Contract does not support looping through owned NFTs. View your owned NFTs on Etherscan or OpenSea.' : '')}
+                </div>
 
-              <div className="market-contract-selection">
-                {ownedNfts && ownedNfts.length ? ownedNfts.map((x) => (<div>#ID: {x}</div>)) : (ownedNftBalance > 0 ? 'NFT Contract does not support looping through owned NFTs. View your owned NFTs on Etherscan or OpenSea.' : '')}
-              </div>
-
-                </>
+              </>
+            )
           ) : (<></>)}
 
         </>
