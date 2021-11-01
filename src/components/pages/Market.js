@@ -36,6 +36,12 @@ function Market() {
     changeContract();
   }
 
+  async function setVerifiedContractFromUrl(contractAddress) {
+    document.getElementById('market-contract-address').value = contractAddress;
+    changeContract();
+  }
+
+
   async function takeOfferTx() {
 
 
@@ -181,7 +187,7 @@ function Market() {
 
   useEffect(() => {
     if (!currentContract && contractAddress) {
-      setCurrentContract(contractAddress);
+      setVerifiedContractFromUrl(contractAddress);
     } else {
       EvmWrapper.onConnect('market', loadMarketOffers);
       EvmWrapper.onConnectSigner('market', loadMarketOffers);

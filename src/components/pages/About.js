@@ -13,6 +13,13 @@ function About() {
         confident is secure. NFT Floor Market will never, ever ask for your personal details or private key.
       </p>
 
+      <p>
+        NFT Floor Market is designed to be a public utility contract for blockchain networks that use the Ethereum virtual machine.
+        The creator receives no funds, this is not offered as a product, and the contract can be used within other products, services, 
+        and smart contracts. It is likely that future derivatives - either from this creator or others - will improve on the existing 
+        contract, secure it, optimize it, reduce bugs, and change or add features.
+      </p>
+
       <h1 id="about">About</h1>
       <p>
         NFT Floor Market is a fully on-chain market for setting "buy offers" of any NFT within a given contract. NFM only 
@@ -21,21 +28,24 @@ function About() {
       </p>
 
       <p>
-        NFM exists to solve one problem: providing base liquidity across all NFTs within a collection. With NFM, buyers can
-        provide a floor price they're willing to pay for <em>any</em> NFT within a given collection, and any seller is able
-        to accept the offer in exchange for one of their NFTs from that collection.
+        NFM exists as a public utility to solve one problem: providing base liquidity across all NFTs within a collection. 
+        With NFM, buyers canprovide a floor price they're willing to pay for <em>any</em> NFT within a given collection, and 
+        any seller is able to accept the offer in exchange for one of their NFTs from that collection.
       </p>
 
       <p>
-        The seller receives all of the buyer's ETH, minus our 0.5% fees (to maintain & build newer versions of the contract, 
-        UI, and pay for security audits & bounties), and any royalties recognized by the EIP2981-compliant 
-        <a href="https://royaltyregistry.xyz/lookup" target="_blank" rel="noreferrer"> Royalty Registry</a>.
+        The seller receives all of the buyer's ETH, minus any royalties recognized by the EIP2981-compliant 
+        <a href="https://royaltyregistry.xyz/lookup" target="_blank" rel="noreferrer"> Royalty Registry</a> for all contracts.
       </p>
 
       <p>
         The NFM smart contracts are designed to work forever, regardless of whether a user interface exists or not. There are
         no external dependencies, only a connection with a blockchain. You can build your own UI or integrate the marketplace
         within other smart contracts.
+      </p>
+
+      <p>
+        You may vet the code of these contracts at any time by viewing the contract code linked from the addresses in the FAQ.
       </p>
 
       <h1 id="about">How It Works</h1>
@@ -51,7 +61,8 @@ function About() {
       </p>
 
       <p>
-        The owner of the smart contract has no authority to withdraw ETH from the contract other than the fees accumulated from sales.
+        The owner of the smart contract has no authority to withdraw ETH from the contract. The only actions the owner can take are to set
+        a different minimum buy offer value and to update the royalty engine address.
       </p>
 
       <h1 id="faq">Caution: Shared / Multiple Collection Contracts</h1>
@@ -110,7 +121,7 @@ function About() {
       <h2>Do you take fees?</h2>
 
       <p>
-        Yes. Currently each sale results in a 0.5% fee, or 1/200th of the sale price.
+        No.
       </p>
 
       <h2>Do you recognize NFT royalties?</h2>
@@ -138,13 +149,19 @@ function About() {
       <h2>Who built this?</h2>
 
       <p>
-        It doesn't matter, it belongs to the Ether now. Its corporeal presence is maintained by <a href="https://twitter.com/cybourgeoisie" target="_blank">@cybourgeoisie</a>.
+        It doesn't matter, it belongs to the Ether now. Its corporeal presence was spurred into existence by <a href="https://twitter.com/cybourgeoisie" target="_blank">@cybourgeoisie</a>.
       </p>
 
       <h2>Why does this look like ass?</h2>
 
       <p>
         It's called a minimum viable product.
+      </p>
+
+      <h2>What is the donation address?</h2>
+
+      <p>
+        0x85c560610A3c8ACccAD214A6BAaefCdDC81aDDA8
       </p>
 
     </div>

@@ -15,6 +15,11 @@ class EvmWrapper {
 	}
 
 	async connect() {
+		if (!window.ethereum) {
+			console.log("window.ethereum not provided");
+			return;
+		}
+
 		// Connect to the provider
 		this.provider = new ethers.providers.Web3Provider(window.ethereum, "any");
 		await this.runEvents('onConnect');
@@ -32,10 +37,14 @@ class EvmWrapper {
 		// Connect to the provider
 		if (!this.provider) {
 			await this.connect();
+			if (!this.provider) {
+				console.log("Provider not available")
+				return;
+			}
 		}
 
 		// Prompt user for account connections
-		this.provider.send("eth_requestAccounts", []);
+		await this.provider.send("eth_requestAccounts", []);
 		this.signer = this.provider.getSigner();
 
 		await this.runEvents('onConnectSigner');
