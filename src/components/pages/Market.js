@@ -7,6 +7,7 @@ import './Market.css';
 
 function Market() {
   const [currentContract, setCurrentContract] = useState();
+  const [currentOfferId, setCurrentOfferId] = useState();
   const [contractErrorMessage, setContractErrorMessage] = useState();
   const [takeOfferErrorMessage, setTakeOfferErrorMessage] = useState();
   const [currencyAbbr, setCurrencyAbbr] = useState('ETH');
@@ -22,7 +23,7 @@ function Market() {
   async function takeOffer(offerId) {
     try {
       await setShowTakeOffer(true);
-      document.getElementById('market-offer-id').value = offerId;
+      setCurrentOfferId(offerId);
       setTakeOfferErrorMessage('');
     } catch (ex) {
 
@@ -45,8 +46,13 @@ function Market() {
   async function takeOfferTx() {
 
 
-    let offerId = document.getElementById('market-offer-id').value;
+    let offerId = currentOfferId;
     let nftId = document.getElementById('market-nft-id').value;
+
+    if (!offerId) {
+      setTakeOfferErrorMessage('No offer ID selected');
+      return;
+    }
 
     setTakeOfferErrorMessage('');
 
@@ -80,6 +86,8 @@ function Market() {
 
   async function loadMarketOffers() {
     console.log("loadMarketOffers", currentContract);
+
+    setCurrentOfferId(null);
 
     if (!EvmWrapper.isConnected()) {
       return;
@@ -304,7 +312,7 @@ function Market() {
 
                 <div className="market-contract-selection">
                   <div>
-                    Offer ID: <input type="text" id="market-offer-id" />
+                    Offer ID: <strong>{currentOfferId ? (<big>#{currentOfferId}</big>) : "No Offer Selected"}</strong>
                   </div>
                   <div>
                     NFT ID: <input type="text" id="market-nft-id" />
