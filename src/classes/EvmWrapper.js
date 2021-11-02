@@ -131,7 +131,7 @@ class EvmWrapper {
 			callback(supportsERC721, supportsERC721 ? null : 'Not an ERC-721 contract');
 			return;
 		} catch (ex) {
-			console.log("Error in getContractName:", ex);
+			console.log("Error in validateNftContract:", ex);
 		}
 
 		callback(false, 'Not an ERC-721 contract');
@@ -153,7 +153,7 @@ class EvmWrapper {
 			callback(success, success ? null : `Not owner of NFT. Owner is ${address}, logged in as ${signerAddress}.`);
 			return;
 		} catch (ex) {
-			console.log("Error in getContractName:", ex);
+			console.log("Error in checkOwnerOfNft:", ex);
 		}
 
 		// Edge-case: something goes wrong
@@ -161,15 +161,16 @@ class EvmWrapper {
 	}
 
 	async getContractName(addr, callback) {
+		let name;
 		try {
 			let contract = new ethers.Contract(addr, contracts['erc721'].abi, this.provider);
-			let name = await contract.name();
+			name = await contract.name();
 			callback(name);
 		} catch (ex) {
 			console.log("Error in getContractName:", ex);
 		}
 
-		return false;
+		return name;
 	}
 
 	async getOwnedNfts(addr, callback) {
@@ -440,6 +441,17 @@ class EvmWrapper {
 			}
 		} catch (ex) {
 			console.log("Error in getActivity:", ex);
+		}
+
+		// For each contract in the logs, get the name if possible
+		let contractToName = {};
+		for (let item of activity) {
+			if (contractToName.hasOwnProperty(item.contract)) {
+				item.contractName = contractToName[item.contract];
+			} else {
+				item.contractName = await this.getContractName(item.contract, () => {});
+				contractToName[item.contract] = item.contractName;
+			}
 		}
 
 		callback(activity);

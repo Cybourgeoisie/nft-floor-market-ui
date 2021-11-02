@@ -7,6 +7,7 @@ import './Activity.css';
 function Activity() {
   const [currencyAbbr, setCurrencyAbbr] = useState('ETH');
   const [activityList, setActivityList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   async function loadActivity() {
     console.log("loadActivity");
@@ -21,6 +22,7 @@ function Activity() {
 
     EvmWrapper.getActivity((activity) => {
 
+      setIsLoading(false);
       setActivityList(activity);
 
     });
@@ -42,9 +44,7 @@ function Activity() {
   }, []);
 
   function renderActivityList() {
-    let table = "There is no recent market activity.";
-    
-    console.log(activityList);
+    let table = (isLoading) ? "Loading recent market activity..." : "There is no recent market activity.";
 
     if (activityList && activityList.length > 0) {
       let rows = []
@@ -54,6 +54,7 @@ function Activity() {
             <td>{event.event}</td>
             <td>{event.time}</td>
             <td>{event.offerId}</td>
+            <td>{shortAddress(event.contract)}{event.contractName ? (<><br />({event.contractName})</>) : ""}</td>
             <td>{shortAddress(event.offerer)}</td>
             <td>{event.value ? event.value + " " + currencyAbbr : ""}</td>
             <td>{shortAddress(event.seller)}</td>
@@ -68,6 +69,7 @@ function Activity() {
             <th>Event</th>
             <th>Time</th>
             <th>Offer ID</th>
+            <th>Contract</th>
             <th>Offerer</th>
             <th>Value</th>
             <th>Seller</th>
